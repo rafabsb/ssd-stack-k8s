@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: spark-master
+  namespace: ssd-stack
+spec:
+  ports:
+  - name: webui
+    port: 8080
+    targetPort: 8080
+  - name: spark-deploy1
+    port: 7077
+    targetPort: 7077
+  - name: spark-deploy2
+    port: 6066
+    targetPort: 6066
+  selector:
+    app: spark-master

@@ -1,0 +1,76 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hadoop-datanode
+  namespace: ssd-stack
+  labels:
+    app: hadoop-datanode
+spec:
+  ports:
+  - port: 50070
+    name: webui
+  - port: 8020
+    name: hdfs
+  clusterIP: None
+  selector:
+    app: hadoop-datanode
+---
+apiVersion: apps/v1beta2
+kind: StatefulSet
+metadata:
+  name: hadoop-datanode
+  namespace: ssd-stack
+spec:
+  selector:
+    matchLabels:
+      app: hadoop-datanode # has to match .spec.template.metadata.labels
+  serviceName: "hadoop-datanode"
+  replicas: 1 # by default is 1
+  template:
+    metadata:
+      labels:
+        app: hadoop-datanode # has to match .spec.selector.matchLabels
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: hadoop-datanode
+        image: rafabsb/hadoop-hdfs-k8s:hadoop2.7.4
+        imagePullPolicy: "IfNotPresent"
+        env:
+        - name: HADOOP_TYPE
+          value: datanode
+        - name: CORE_CONF_fs_defaultFS
+          value: hdfs://hadoop-namenode:8020
+        - name: CORE_CONF_hadoop_tmp_dir
+          value: /hadoop-data/tmp
+        - name: HDFS_CONF_dfs_webhdfs_enabled
+          value: 'true'
+        - name: HDFS_CONF_dfs_permissions_enabled
+          value: 'false'
+        - name: HDFS_CONF_dfs_datanode_data_dir
+          value: file:///hadoop-data/datanode
+        - name: HDFS_CONF_dfs_namenode_name_dir
+          value: file:///hadoop-data/namenode
+        - name: HDFS_CONF_dfs_replication
+          value: '1'
+        - name: CLUSTER_NAME
+          value: hadoop-ssd-cluster
+        ports:
+        - containerPort: 50070
+          name: webui
+        - containerPort: 8020
+          name: hdfs
+        command: ["/bin/sh"]
+        args: ["-c", "./run.sh ; sleep infinity"]
+#        volumeMounts:
+#        - name: www
+#          mountPath: /usr/share/nginx/html
+#  volumeClaimTemplates:
+#  - metadata:
+#      name: www
+#    spec:
+#      accessModes: [ "ReadWriteOnce" ]
+#      storageClassName: my-storage-class
+#      resources:
+#        requests:
+#          storage: 1Gi

@@ -1,0 +1,54 @@
+apiVersion: apps/v1beta2 # for versions before 1.8.0 use apps/v1beta1
+kind: Deployment
+metadata:
+  name: hadoop-namenode
+  namespace: ssd-stack
+  labels:
+    app: hadoop-namenode
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hadoop-namenode
+  template:
+    metadata:
+      labels:
+        app: hadoop-namenode
+    spec:
+      containers:
+      - name: hadoop-namenode
+        image: rafabsb/hadoop-hdfs-k8s:hadoop2.7.4
+        imagePullPolicy: "IfNotPresent"
+        env:
+        - name: HADOOP_TYPE
+          value: namenode
+        - name: CORE_CONF_fs_defaultFS
+          value: hdfs://hadoop-namenode:8020
+        - name: CORE_CONF_hadoop_tmp_dir
+          value: /hadoop-data/tmp
+        - name: HDFS_CONF_dfs_webhdfs_enabled
+          value: 'true'
+        - name: HDFS_CONF_dfs_permissions_enabled
+          value: 'false'
+        - name: HDFS_CONF_dfs_datanode_data_dir
+          value: file:///hadoop-data/datanode
+        - name: HDFS_CONF_dfs_namenode_name_dir
+          value: file:///hadoop-data/namenode
+        - name: HDFS_CONF_dfs_replication
+          value: '1'
+        - name: CLUSTER_NAME
+          value: hadoop-ssd-cluster
+        ports:
+        - containerPort: 50070
+          name: webui
+        - containerPort: 8020
+          name: hdfs
+        command: ["/bin/sh"]
+        args: ["-c", "./run.sh ; sleep infinity"]
+        resources:
+           requests:
+             memory: "64Mi"
+             cpu: "100m"
+           limits:
+             memory: "500Mi"
+             cpu: "500m"
