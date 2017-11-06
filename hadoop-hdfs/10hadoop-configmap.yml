@@ -5,27 +5,23 @@ metadata:
 apiVersion: v1
 data:
   dfs.exclude: |-
-    
+    .
 
   core-site.xml: |-
     <?xml version="1.0" encoding="UTF-8"?>
     <configuration>
        <property>
           <name>hadoop.tmp.dir</name>
-          <value>/data/hadoop_store/tmp</value>
+          <value>/hadoop-data/tmp</value>
           <description>directory for hadoop data</description>
        </property>
        <property>
           <name>fs.defaultFS</name>
-          <value>hdfs://itoa-hdfs-namenode:54311</value>
+          <value>hdfs://hadoop-namenode:8020</value>
           <description>data to be put on this URI</description>
        </property>
-       <property>
-          <name>fs.defaultFS</name>
-          <value>hdfs://itoa-hdfs-namenode:54311</value>
-          <description>Use HDFS as file storage engine</description>
-       </property>
     </configuration>
+
 
   hdfs-site.xml: |-
     <?xml version="1.0" encoding="UTF-8"?>
@@ -36,12 +32,12 @@ data:
        </property>
        <property>
           <name>dfs.datanode.data.dir</name>
-          <value>/data/hadoop_store/hdfs/datanode</value>
+          <value>file:///hadoop-data/datanode</value>
           <final>true</final>
        </property>
        <property>
           <name>dfs.namenode.name.dir</name>
-          <value>/data/hadoop_store/hdfs/namenode</value>
+          <value>file:///hadoop-data/namenode</value>
           <final>true</final>
        </property>
        <property>
@@ -53,34 +49,7 @@ data:
   run.sh: |-
     #!/bin/bash
     
-    function addProperty() {
-      local path=$1
-      local name=$2
-      local value=$3
-    
-      local entry="<property><name>$name</name><value>${value}</value></property>"
-      local escapedEntry=$(echo $entry | sed 's/\//\\\//g')
-      sed -i "/<\/configuration>/ s/.*/${escapedEntry}\n&/" $path
-    }
-    
-    function configure() {
-        local path=$1
-        local module=$2
-        local envPrefix=$3
-    
-        local var
-        local value
-        
-        echo "Configuring $module"
-        for c in `printenv | perl -sne 'print "$1 " if m/^${envPrefix}_(.+?)=.*/' -- -envPrefix=$envPrefix`; do 
-            name=`echo ${c} | perl -pe 's/___/-/g; s/__/@/g; s/_/./g; s/@/_/g;'`
-            var="${envPrefix}_${c}"
-            value=${!var}
-            echo " - Setting $name=$value"
-            addProperty $HADOOP_CONF_DIR/$module-site.xml $name "$value"
-        done
-    }
-    
+   
     if [ $HADOOP_TYPE != "namenode" ] && [ $HADOOP_TYPE != "datanode" ]; then
         echo "HADOOP_TYPE env var must be \"namenode\" or \"datanode\""
         echo "Please set HADOOP_TYPE in the docker-compose.yml file accordingly"
@@ -91,18 +60,6 @@ data:
       echo "Cluster name not specified."
       exit 2
     fi
-    
-    configure $HADOOP_CONF_DIR/core-site.xml core CORE_CONF
-    configure $HADOOP_CONF_DIR/hdfs-site.xml hdfs HDFS_CONF
-    
-    
-    #if [ -e $SPARK_HOME/conf/core-site.xml ]; then
-    #   ln -s $HADOOP_CONF_DIR/core-site.xml $SPARK_HOME/conf/core-site.xml
-    #fi
-    #
-    #if [ -e $SPARK_HOME/conf/hdfs-site.xml ]; then
-    #   ln -s $HADOOP_CONF_DIR/hdfs-site.xml $SPARK_HOME/conf/hdfs-site.xml
-    #fi
     
     tmpdir=`echo $CORE_CONF_hadoop_tmp_dir`
     if [ ! -d $tmpdir ]; then
@@ -406,58 +363,58 @@ data:
     #log4j.appender.nodemanagerrequestlog.RetainDays=3
 
   kms-site.xml: |-
-
+    .
 
 
 
   kms-log4j.properties: |-
-
+    .
 
 
   kms-env.sh: |-
-
+    .
 
 
 
   kms-acls.xml: |-
-
+    .
 
 
 
   httpfs-site.xml: |-
-
+    .
 
 
 
   httpfs-signature.secret: |-
-
+    .
 
 
 
   httpfs-log4j.properties: |-
-
+    .
 
 
 
   httpfs-env.sh: |-
-
+    .
 
 
 
   hadoop-policy.xml: |-
-
+    .
 
 
 
   hadoop-metrics.properties: |-
-
+    .
 
 
   hadoop-metrics2.properties: |-
-
+    .
 
 
 
   configuration.xsl: |-
-
+    .
 
