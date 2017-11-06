@@ -19,6 +19,7 @@
 * centrilized log solution
 * scaling services
 * phisical volumes
+* create initContainers to configure others
 
 # => Apache Spark - Standalone Cluster
 ### to do:
