@@ -25,7 +25,7 @@ spec:
     matchLabels:
       app: hadoop-datanode # has to match .spec.template.metadata.labels
   serviceName: "hadoop-datanode"
-  replicas: 1 # by default is 1
+  replicas: 2 # by default is 1
   template:
     metadata:
       labels:
@@ -61,10 +61,14 @@ spec:
         - containerPort: 8020
           name: hdfs
         command: ["/bin/sh"]
-        args: ["-c", "./run.sh ; sleep infinity"]
-#        volumeMounts:
-#        - name: www
-#          mountPath: /usr/share/nginx/html
+        args: ["-c", "chmod a+x run.sh && ./run.sh ; sleep infinity"]
+        volumeMounts:
+        - name: hadoop-hdfs-config
+          mountPath: /usr/hadoop/etc/hadoop
+      volumes:
+      - name: hadoop-hdfs-config
+        configMap:
+          name: hadoop-hdfs-config
 #  volumeClaimTemplates:
 #  - metadata:
 #      name: www
